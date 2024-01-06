@@ -3,13 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Register as Voter</title>
+    <link href="./static/style.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-<form id ="form">
-<label for="fname">Username:</label><br>
-  <input type="text" id="fname" name="fname"><br>
-  <label for="lname">Password:</label><br>
-  <input type="password" id="password" name="password"><br>
+<h1>Register as a Voter!</h1>
+<form id ="form" action="{{ url_for("register")}}" method="post">
+<label for="UVC">8-digit Unique Voter Code (UVC):</label><br>
+  <input type="text" name="UVC"><br>
+  <label for="VoterID">VoterID(email address):</label><br>
+  <input type="text" id="VoterID" name="VoterID"><br>
+    <label for="Password">Password:</label><br>
+  <input type="password" id="Password" name="Password"><br>
+    <label for="Name">Full Name:</label><br>
+  <input type="text" id="Name" name="Name"><br>
+    <label for="Birthday">Date of Birth:</label><br>
+  <input type="date" id="Birthday" name="Birthday"><br>
+    <label for="Const">Constituency:</label><br>
+  <select name="Const" id="Const">
+      <option value="" selected disabled hidden>Select</option>
+      <option value=1>Shangri-la-Town</option>
+      <option value=2>Northern-Kunlun-Mountain</option>
+      <option value=3>Western-Shangri-la</option>
+      <option value=4>Naboo-Vallery</option>
+      <option value=5>New-Felucia</option>
+  </select><br>
    <input type="submit">
 </form>
 </body>
