@@ -1,14 +1,17 @@
 import json
-import pyrebase
+import secrets
 
+import pyrebase
+import Check
 #import firebase_admin
 from firebase import firebase
 #from firebase_admin import credentials, auth
-from flask import Flask,render_template,request
+from flask import Flask, render_template, request, redirect, url_for, session
 
 import pyrebase
 import requests
 app = Flask(__name__)
+app.secret_key = secrets.token_hex(16)
 #default_app = firebase_admin.initialize_app()
 #Pyrebase credentials
 config = {
@@ -25,8 +28,7 @@ config = {
 firebase = pyrebase.initialize_app(config)
 # Get a reference to the auth service
 auth = firebase.auth()
-#authentication = firebase.authentication
-#cred = credentials.Certificate('gevs-e6e1e-firebase-adminsdk-ygkzs-c877dd098c.json')
+
 db = firebase.database()
 
 @app.route('/', methods =["GET", "POST"])
@@ -38,7 +40,8 @@ def login():  # put application's code here
         error_message = ""
         try:
             user = auth.sign_in_with_email_and_password(email, password)
-
+            session['User'] = email
+            return redirect(url_for("VDashboard"))
         #catch firebase errors for if login doesn't work
         except requests.exceptions.HTTPError as e:
             error_message = "Invalid Email Address or Password"
@@ -46,6 +49,10 @@ def login():  # put application's code here
     else:
         return render_template("index.html")
 
+
+def logout():
+    session.pop('User')
+    redirect('/')
 @app.route('/register', methods =["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -57,20 +64,33 @@ def register():
         VoterID = request.form.get("VoterID")
         Password = request.form.get("Password")
         jsonfile = {"Voters/"+UVC:{"Name":Name,"Const":Const,"Birthday":Birthday,"VoterID":VoterID}}
+        if Check.validUVC(UVC) == True:
+            #create user in firebase
+            try:
+                auth.create_user_with_email_and_password(VoterID,Password)
+                # add voter data to db
+                db.update(jsonfile)
+            except requests.exceptions.HTTPError as e:
+                error = json.loads(e.args[1])['error']['message']
 
-        #create user in firebase
-        auth.create_user_with_email_and_password(VoterID,Password)
 
-        #add voter data to db
-        db.update(jsonfile)
 
-        validUser(UVC,VoterID,Password)
-        return "Your name is " + Name + UVC +Birthday
+
+
+        else:
+            error = "Invalid UVC, either UVC is already in use or is not correct"
+
+        if error != None:
+            return render_template("Register Voter.html", message=error)
+        else:
+            return redirect(url_for("VDashboard"))
     return render_template("Register Voter.html")
 
+@app.route('/VDashboard')
+def VDashboard():
+    return render_template("Voter Dashboard.html")
 
-#def validUser(UVC,VoterID,Password):
-
-
+def submit_vote():
+    return render_template("Thank You.html")
 if __name__ == '__main__':
     app.run()
