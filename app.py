@@ -41,6 +41,11 @@ def login():  # put application's code here
         try:
             user = auth.sign_in_with_email_and_password(email, password)
             session['User'] = email
+            with open("ElectionOfficers.txt","r") as f:
+                officers = f.read().splitlines()
+                if email in officers:
+                    session['Officer'] = True
+                    return redirect(url_for("ODashboard"))
             return redirect(url_for("VDashboard"))
         #catch firebase errors for if login doesn't work
         except requests.exceptions.HTTPError as e:
@@ -88,9 +93,32 @@ def register():
 
 @app.route('/VDashboard')
 def VDashboard():
-    return render_template("Voter Dashboard.html")
+    try:
+        email = session['User']
+    except KeyError:
+        return redirect('/')
+    voters = db.child("Voters").order_by_child("VoterID").equal_to(email).get().val()
+    Const = next(iter(voters.values()))['Const']
+    Candidates = db.child('Candidates').get().val()
+    Constituency_data = Candidates[int(Const)][1:]
+    session['Const']= Const
+    return render_template("Voter Dashboard.html",Constituency_data = Constituency_data)
 
+@app.route('/ThankYou',methods =["GET", "POST"])
 def submit_vote():
+    if request.method == "POST":
+        selected_candidate = request.form.get('selected_candidate').split("|")
+
+        candidates = db.child("Candidates").child(int(selected_candidate[0]))
+        Votes = candidates.get().val()[1:][0]["Votes"]
+        db.child("Candidates").child(session['Const']).child(int(selected_candidate[0])).update({"Votes":(Votes+1)})
+        #db.child("Candidates").child(int(selected_candidate[0])).update()
+
     return render_template("Thank You.html")
+
+@app.route("/ODashboard")
+def Officer_Dashboard():
+    return render_template("Officer Dashboard.html")
+
 if __name__ == '__main__':
     app.run()
