@@ -1,11 +1,8 @@
 import json
 import secrets
 
-import pyrebase
 import Check
-#import firebase_admin
-from firebase import firebase
-#from firebase_admin import credentials, auth
+
 from flask import Flask, render_template, request, redirect, url_for, session
 
 import pyrebase
@@ -30,7 +27,8 @@ firebase = pyrebase.initialize_app(config)
 auth = firebase.auth()
 
 db = firebase.database()
-
+constituencies = ["Shangri-la-Town", "Northern-Kunlun-Mountain", "Western-Shangri-la", "Naboo-Vallery",
+                          "New-Felucia"]
 @app.route('/', methods =["GET", "POST"])
 def login():  # put application's code here
     result = db.child("/Voters").get()
@@ -54,10 +52,10 @@ def login():  # put application's code here
     else:
         return render_template("index.html")
 
-
+@app.route('/logout')
 def logout():
     session.pop('User')
-    redirect('/')
+    return redirect('/')
 @app.route('/register', methods =["GET", "POST"])
 def register():
     error = None
@@ -80,10 +78,6 @@ def register():
                 db.update(jsonfile)
             except requests.exceptions.HTTPError as e:
                 error = json.loads(e.args[1])['error']['message']
-
-
-
-
 
         else:
             error = "Invalid UVC, either UVC is already in use or is not correct"
@@ -111,6 +105,7 @@ def VDashboard():
         return render_template("Voter Dashboard.html",Constituency_data = Constituency_data)
     else:
         return render_template("Voting Closed.html")
+
 @app.route('/ThankYou',methods =["GET", "POST"])
 def submit_vote():
     if request.method == "POST":
@@ -135,7 +130,22 @@ def Officer_Dashboard():
     if request.method == "GET":
         if db.child("Open").get().val() == True:
             initial_checkbox = True
+        winningParty = "Hung Parliment"
+        results = []
 
+        Candidates = db.child("Candidates").get().val()[1:]
+        for constituency in Candidates:
+            max_votes = 0
+            current_winner = {}
+            for cand in constituency[1:]:
+                if cand['Votes']> max_votes:
+
+                    current_winner = cand
+
+            current_winner["Const"]= constituencies[Candidates.index((constituency))]
+            results.append(current_winner)
+        winningParty = Check.WinningParty(results)
+        return render_template("Officer Dashboard.html",results=results,const=constituencies,Winner = winningParty)
     if request.method == "POST":
         if request.form.get("Voting") == "on":
             db.update({"Open":True})
@@ -143,5 +153,22 @@ def Officer_Dashboard():
             db.update({"Open": False})
     return render_template("Officer Dashboard.html",initial_checkbox_value=initial_checkbox)
     # show voting results
+
+@app.route("/AllVotes")
+def AllVotes():
+    try:
+        email = session['User']
+    except KeyError:
+        return redirect('/')
+
+    Votes = db.child("/Candidates").get().val()[1:]
+    flat_list = []
+    for i in Votes:
+        for j in i[1:]:
+            j["Const"] = constituencies[Votes.index(i)]
+            flat_list.append(j)
+    return render_template("All Votes.html",votes=flat_list)
+
+
 if __name__ == '__main__':
     app.run()

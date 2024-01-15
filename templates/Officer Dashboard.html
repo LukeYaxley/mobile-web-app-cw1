@@ -17,5 +17,20 @@
     <button type="submit">Submit</button>
 
 </form>
+<h2>Current Results</h2>
+{% for candidate in results %}
+
+
+                {{ candidate['Const'] }}: {{ candidate['Name'] }} - {{ candidate['Party'] }}<br>
+
+
+    {% endfor %}
+    <br>
+<h1>Current Result:</h1>
+<b>{{ Winner }}</b>
+<br>
+<a href="{{ url_for('AllVotes') }}" class="button"><button>View Full Vote Breakdown</button></a>
+<br><br>
+<a href="{{ url_for('logout') }}" class="button"><button>Logout of Account</button></a>
 </body>
 </html>

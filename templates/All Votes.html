@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Votes</title>
+    <link href="./static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+<a href="{{ url_for('Officer_Dashboard') }}" class="button" id="back_button"><button>Go Back to Dashboard</button></a>
+<table >
+<th>Full Name</th>
+    <th>Party</th>
+    <th>Constituency</th>
+<th>Votes</th>
+{% for vote in votes %}
+        <tr>
+        <td>{{ vote['Name'] }}</td><td>{{ vote['Party'] }}</td><td>{{ vote['Const'] }}</td><td>{{ vote['Votes'] }}</td>
+
+        </tr>
+
+    {% endfor %}
+</table>
+<br><br>
+<a href="{{ url_for('logout') }}" class="button"><button>Logout of Account</button></a>
+</body>
+</html>

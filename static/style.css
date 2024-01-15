@@ -1,3 +1,4 @@
+
 body {
   margin: 0;
   padding: 0;
@@ -5,6 +6,7 @@ body {
     background-color: cornflowerblue;
     text-align: center;
 }
+
 #form{
     margin: auto;
     width: 30%;
@@ -13,3 +15,18 @@ body {
     box-sizing: border-box;
     background: rgba(105,105,105, 0.5);
 }
+table {
+            margin: auto;
+            border-collapse: collapse;
+            width: 80%; /* Adjust the width as needed */
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
