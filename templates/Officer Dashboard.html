@@ -2,9 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Officer Dashboard</title>
+    <link href="./static/style.css" rel="stylesheet" type="text/css">
+
 </head>
 <body>
+<h1>Election Officer Dashboard</h1>
+<form action = "{{ url_for('Officer_Dashboard') }}" id = "form" method="post">
+    <label>
+    <input type = "checkbox" name="Voting"  {% if initial_checkbox_value %}checked{% endif %}>
+        Voting open?
+    </label>
+    <br>
+    <button type="submit">Submit</button>
 
+</form>
 </body>
 </html>
