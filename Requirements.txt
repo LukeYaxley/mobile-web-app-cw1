@@ -1,4 +1,4 @@
 pyrebase5
-requests
-flask
+requests~=2.11.1
+flask~=3.0.0
 
