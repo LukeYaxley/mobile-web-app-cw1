@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Officer Dashboard</title>
+    <link href="./static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+<h1>Election Officer Dashboard</h1>
+<form action = "{{ url_for('Officer_Dashboard') }}" id = "form" method="post">
+    <label>
+    <input type = "checkbox" name="Voting"  {% if initial_checkbox_value %}checked{% endif %}>
+        Voting open?
+    </label>
+    <br>
+    <button type="submit">Submit</button>
+
+</form>
+<h2>Current Results</h2>
+{% for candidate in results %}
+
+
+                {{ candidate['Const'] }}: {{ candidate['Name'] }} - {{ candidate['Party'] }}<br>
+
+
+    {% endfor %}
+    <br>
+<h1>Current Result:</h1>
+<b>{{ Winner }}</b>
+<br>
+<a href="{{ url_for('AllVotes') }}" class="button"><button>View Full Vote Breakdown</button></a>
+<br><br>
+<a href="{{ url_for('logout') }}" class="button"><button>Logout of Account</button></a>
+</body>
+</html>
